@@ -113,3 +113,23 @@ If you use this work, please cite:
   url    = {https://doi.org/10.5281/zenodo.20356814}
 }
 ```
+
+
+---
+
+## 🚀 Quick Start
+
+```python
+from holodb.codecs.spherical_embedding_codec import SphericalEmbeddingCodec
+import numpy as np
+
+vectors = [np.random.randn(1536).astype(np.float32) for _ in range(100)]
+vectors = [v / np.linalg.norm(v) for v in vectors]
+
+codec = SphericalEmbeddingCodec(keep_ratio=0.03, auto_ratio=True)
+payload = codec.encode(vectors)
+vec_decoded = SphericalEmbeddingCodec.decode(payload, idx=0)
+
+stats = SphericalEmbeddingCodec.compression_stats(vectors, payload)
+print(f"Ratio: {stats['ratio']:.2f}x")  # ~3.66x
+```
