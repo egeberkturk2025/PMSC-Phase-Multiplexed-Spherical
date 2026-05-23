@@ -150,9 +150,16 @@ class MultiplexedHolographicCodec:
         if len(images) < 2:
             return 0.02
 
+        # Sample at most 100 images to avoid O(N^2) pairwise bottleneck on large batches
+        if len(images) > 100:
+            step = len(images) // 100
+            sampled_images = images[::step][:100]
+        else:
+            sampled_images = images
+
         # Compute phase spectra
         phases = []
-        for img in images:
+        for img in sampled_images:
             freq = np.fft.fft2(img.astype(np.float64))
             phases.append(np.angle(np.fft.fftshift(freq)).flatten())
 

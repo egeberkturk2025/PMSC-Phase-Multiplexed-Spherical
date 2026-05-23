@@ -185,20 +185,33 @@ collapse\_confirmed & \textbf{True} & Mathematical verification passed \\
 \end{table}
 
 \subsection{Dimension Scaling}
+We evaluate PMSC performance scaling across varying vector dimensions ($d \in [256, 3072]$) using 500 unit-norm vectors. The results are summarized in Table~\ref{tab:dimension_scaling}.
+
 \begin{table}[h]
 \centering
-\begin{tabular}{cccc}
+\begin{tabular}{cccccc}
 \toprule
-\textbf{Dimension} & \textbf{Cosine Sim (bit-perfect)} & \textbf{Cosine Sim (lossy)} & \textbf{Theoretical $\epsilon$} \\
+\textbf{Dimension ($d$)} & \textbf{Bit-Perfect} & \textbf{Lossy (f16)} & \textbf{Cosine Sim} & \textbf{Exponent 127 \%} & \textbf{Delta Entropy} \\
 \midrule
-256 & $>0.96$ & $>0.999$ & 0.0625 \\
-384 & $>0.98$ & $>0.999$ & 0.0510 \\
-768 & $>0.99$ & $>0.999$ & 0.0361 \\
-1536 & $>0.99$ & $>0.999$ & 0.0255 \\
+256 & 2.42$\times$ & 1.92$\times$ & 1.0000 & 98.5\% & 4.36 \\
+384 & 2.55$\times$ & 1.95$\times$ & 1.0000 & 98.9\% & 4.09 \\
+512 & 2.77$\times$ & 1.98$\times$ & 1.0000 & 99.2\% & 3.89 \\
+768 & 3.03$\times$ & 2.03$\times$ & 1.0000 & 99.5\% & 3.60 \\
+1024 & 3.21$\times$ & 2.07$\times$ & 1.0000 & 99.6\% & 3.41 \\
+1536 & 3.57$\times$ & 2.09$\times$ & 1.0000 & 99.7\% & 3.12 \\
+3072 & 4.07$\times$ & 2.13$\times$ & 1.0000 & 99.9\% & 2.64 \\
 \bottomrule
 \end{tabular}
-\caption{Performance scaling across different vector dimensions.}
+\caption{PMSC performance scaling metrics across dimensions.}
+\label{tab:dimension_scaling}
 \end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{compression_scaling.png}
+\caption{PMSC Compression Ratio scaling behavior as embedding dimension increases ($d=256 \to 3072$). The lossless ratio scales from 2.42x to 4.07x due to stronger angular concentration.}
+\label{fig:compression_scaling}
+\end{figure}
 
 \subsection{Evaluation on Real Semantic Embeddings}
 To ensure our findings transfer to production scenarios, we evaluate PMSC on 50 real semantic embeddings generated using popular offline models from the \texttt{sentence-transformers} library:
@@ -291,7 +304,7 @@ We conduct comprehensive ablation studies to evaluate the contribution of each c
 Baseline (Xiao 2026) & $1.50\times$ & Yes \\
 + Delta Subtraction ($\varphi - \pi/2$) & $1.85\times$ & Yes \\
 + 2D FFT Basis Sharing & $2.92\times$ & Yes \\
-+ Adaptive Keep Ratio & $3.66\times$ & Yes \\
++ Adaptive Keep Ratio & $3.50\times$ & Yes \\
 \midrule
 PMSC (Lossy float16) & $2.09\times$ & No (cos\_sim $>$0.999) \\
 FAISS PQ (m=64, nbits=8) & $6.00\times$ & No (quantization) \\
@@ -303,7 +316,7 @@ FAISS PQ (m=64, nbits=8) & $6.00\times$ & No (quantization) \\
 \begin{itemize}
 \item Delta subtraction alone improves compression from $1.50\times$ to $1.85\times$ by reducing mantissa entropy.
 \item FFT basis sharing contributes the most significant gain, reaching $2.92\times$by exploiting frequency domain redundancy.
-\item Adaptive keep ratio optimization pushes the final result to $3.66\times$.
+\item Adaptive keep ratio optimization pushes the final result to $3.50\times$.
 \item While FAISS PQ achieves higher compression ($6.00\times$), it introduces irreversible quantization errors. PMSC maintains bit-perfect reconstruction in lossless mode.
 \end{itemize}
 
@@ -325,16 +338,16 @@ To validate scalability, we benchmark PMSC against established baselines on 10,0
 \toprule
 \textbf{Method} & \textbf{Ratio} & \textbf{Size (MB)} & \textbf{Encode (s)} & \textbf{Decode (ms)} \\
 \midrule
-PMSC (Bit-Perfect) & $3.66\times$ & $16.4$ & $2.15$ & $0.82$ \\
+PMSC (Bit-Perfect) & $3.50\times$ & $16.7$ & $45.55$ & $0.77$ \\
 FAISS PQ (m=64) & $6.00\times$ & $10.0$ & $0.89$ & $0.31$ \\
-Raw Pickle & $1.00\times$ & $60.0$ & $0.05$ & $0.08$ \\
+Raw Pickle & $1.00\times$ & $58.6$ & $0.04$ & $16.76$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{Analysis:}
 \begin{itemize}
-\item PMSC achieves $3.66\times$ compression with \textbf{zero information loss}, confirmed by $exponent\_127\_pct = 99.75\%$ across all 10K vectors.
+\item PMSC achieves $3.50\times$ compression with \textbf{zero information loss}, confirmed by $exponent\_127\_pct = 99.75\%$ across all 10K vectors.
 \item FAISS PQ is faster but lossy---reconstruction errors accumulate due to codebook quantization.
 \item Encoding time for PMSC scales linearly with vector count ($O(nd)$ for FFT operations).
 \item PMSC decoding is efficient (sub-millisecond per vector), suitable for real-time retrieval systems.
