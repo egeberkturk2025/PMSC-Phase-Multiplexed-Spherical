@@ -1,5 +1,7 @@
 # Phase-Multiplexed Spherical Collapse (PMSC)
 
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.20356814.svg)](https://doi.org/10.5281/zenodo.20356814)
+
 This repository contains the core implementation, tests, and academic paper for the **Phase-Multiplexed Spherical Collapse (PMSC)** embedding compression method.
 
 ## ⚠️ Copyright and License
@@ -94,4 +96,20 @@ pytest tests/ -v
 To reproduce the experimental tables comparing Gaussian baseline vs. real semantic embeddings:
 ```bash
 python benchmark.py
+```
+
+---
+
+## 📄 Citation
+
+If you use this work, please cite:
+
+```bibtex
+@misc{turk2026pmsc,
+  title  = {Phase-Multiplexed Spherical Collapse: Surpassing Lossless Embedding Compression Bounds via FFT Basis Sharing},
+  author = {Türk, Ilker},
+  year   = {2026},
+  doi    = {10.5281/zenodo.20356814},
+  url    = {https://doi.org/10.5281/zenodo.20356814}
+}
 ```
