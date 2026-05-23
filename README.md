@@ -107,7 +107,7 @@ If you use this work, please cite:
 ```bibtex
 @misc{turk2026pmsc,
   title  = {Phase-Multiplexed Spherical Collapse: Surpassing Lossless Embedding Compression Bounds via FFT Basis Sharing},
-  author = {Türk, Ilker},
+  author = {Türk, Ege Berk},
   year   = {2026},
   doi    = {10.5281/zenodo.20356814},
   url    = {https://doi.org/10.5281/zenodo.20356814}
